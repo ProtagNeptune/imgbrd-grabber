@@ -1357,6 +1357,7 @@ void OptionsWindow::save()
 	const QStringList infiniteScroll { "disabled", "button", "scroll" };
 	settings->setValue("infiniteScroll", infiniteScroll.at(ui->comboInfiniteScroll->currentIndex()));
 	settings->setValue("infiniteScrollRememberPage", ui->checkInfiniteScrollRememberPage->isChecked());
+	settings->setValue("Interface/previewVideoIndicator", ui->checkPreviewVideoIndicator->isChecked());
 
 	settings->setValue("Batch/end", ui->comboBatchEnd->currentIndex());
 	settings->beginGroup("Save");
