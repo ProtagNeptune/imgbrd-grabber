@@ -203,6 +203,7 @@ bool FFmpeg::executeConvert(const QString &file, const QString &destination, boo
 
 bool FFmpeg::execute(const QStringList &params, int msecs)
 {
+	log(QString("[FFmpeg] %1 %2").arg("ffmpeg").arg(params.join(" ")), Logger::Debug);
 	QProcess process;
 	process.start("ffmpeg", params);
 
