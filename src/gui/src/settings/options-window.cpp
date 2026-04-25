@@ -45,10 +45,10 @@
 #include "viewer/viewer-window-buttons.h"
 
 
-void disableItem(QComboBox *combo, int index, const QString &toolTip = {}) {
+void disableItem(QComboBox *combo, int index, const QString &toolTip = {}, bool enable = false) {
 	auto *model = qobject_cast<QStandardItemModel*>(combo->model());
 	QStandardItem *item = model->item(index);
-	item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+	item->setFlags(enable ? item->flags() | Qt::ItemIsEnabled : item->flags() & ~Qt::ItemIsEnabled);
 	if (!toolTip.isEmpty()) {
 		item->setToolTip(toolTip);
 	}
@@ -146,11 +146,13 @@ OptionsWindow::OptionsWindow(Profile *profile, ThemeLoader *themeLoader, QWidget
 	});
 	auto *ffmpegVersionWatcher = new QFutureWatcher<QString>(this);
 	connect(ffmpegVersionWatcher, &QFutureWatcher<QString>::finished, [=]() {
-		const QString &version = ffmpegVersion.result();
-		ui->labelConversionFFmpegVersion->setText(version.isEmpty() ? tr("FFmpeg not found") : version);
-		if (version.isEmpty()) {
+		m_ffmpegVersion = ffmpegVersion.result();
+		ui->labelConversionFFmpegVersion->setText(m_ffmpegVersion.isEmpty() ? tr("FFmpeg not found") : m_ffmpegVersion);
+		if (m_ffmpegVersion.isEmpty()) {
 			ui->labelConversionFFmpegVersion->setStyleSheet("color: red");
-			disableItem(ui->comboConversionImageBackend, 1);
+		}
+		for (const auto &pair : m_imageConversion) {
+			disableItem(pair.backend, 1, "", !m_ffmpegVersion.isEmpty());
 		}
 	});
 	ffmpegVersionWatcher->setFuture(ffmpegVersion);
@@ -161,11 +163,13 @@ OptionsWindow::OptionsWindow(Profile *profile, ThemeLoader *themeLoader, QWidget
 	});
 	auto *imageMagickVersionWatcher = new QFutureWatcher<QString>(this);
 	connect(imageMagickVersionWatcher, &QFutureWatcher<QString>::finished, [=]() {
-		const QString &version = imageMagickVersion.result();
-		ui->labelConversionImageMagickVersion->setText(version.isEmpty() ? tr("ImageMagick not found") : version);
-		if (version.isEmpty()) {
+		m_imageMagickVersion = imageMagickVersion.result();
+		ui->labelConversionImageMagickVersion->setText(m_imageMagickVersion.isEmpty() ? tr("ImageMagick not found") : m_imageMagickVersion);
+		if (m_imageMagickVersion.isEmpty()) {
 			ui->labelConversionImageMagickVersion->setStyleSheet("color: red");
-			disableItem(ui->comboConversionImageBackend, 0);
+		}
+		for (const auto &pair : m_imageConversion) {
+			disableItem(pair.backend, 0, "", !m_imageMagickVersion.isEmpty());
 		}
 	});
 	imageMagickVersionWatcher->setFuture(imageMagickVersion);
@@ -177,22 +181,30 @@ OptionsWindow::OptionsWindow(Profile *profile, ThemeLoader *themeLoader, QWidget
 	ui->spinConversionFFmpegTimeout->setValue(settings->value("Save/FFmpegConvertTimeout", 30000).toDouble() / 1000);
 
 	// Image conversion
-	ui->comboConversionImageBackend->setCurrentText(settings->value("Save/ImageConversionBackend", "ImageMagick").toString());
 	ui->checkConversionImageOverwrite->setChecked(settings->value("Save/ImageConversionOverwrite", true).toBool());
 	ui->spinConversionImageTimeout->setValue(settings->value("Save/ImageConversionTimeout", 30000).toDouble() / 1000);
 	settings->beginGroup("Save/ImageConversion");
 	for (const QString &from : settings->childGroups()) {
 		settings->beginGroup(from);
 		const QString to = settings->value("to").toString();
+		const QString backend = settings->value("backend", settings->value("Save/ImageConversionBackend", "ImageMagick")).toString();
 		settings->endGroup();
 
 		auto *leFrom = new QLineEdit(from, this);
+		leFrom->setPlaceholderText(tr("From"));
 		auto *leTo = new QLineEdit(to, this);
-		m_imageConversion.append(QPair<QLineEdit*, QLineEdit*> { leFrom, leTo });
+		leTo->setPlaceholderText(tr("To"));
+		auto *comboBackend = new QComboBox(this);
+		comboBackend->addItems({ QStringLiteral("ImageMagick"), QStringLiteral("FFmpeg") });
+		comboBackend->setCurrentText(backend);
+		if (m_imageMagickVersion.isEmpty()) { disableItem(comboBackend, 0); }
+		if (m_ffmpegVersion.isEmpty()) { disableItem(comboBackend, 1); }
+		m_imageConversion.append({ leFrom, leTo, comboBackend });
 
 		auto *layout = new QHBoxLayout();
 		layout->addWidget(leFrom);
 		layout->addWidget(leTo);
+		layout->addWidget(comboBackend);
 		ui->layoutConversionImageList->addLayout(layout);
 	}
 	settings->endGroup();
@@ -725,12 +737,19 @@ void OptionsWindow::on_buttonMetadataExiftoolAdd_clicked()
 void OptionsWindow::on_buttonConversionImageListAdd_clicked()
 {
 	auto *leFrom = new QLineEdit(this);
+	leFrom->setPlaceholderText(tr("From"));
 	auto *leTo = new QLineEdit(this);
-	m_imageConversion.append(QPair<QLineEdit*, QLineEdit*> { leFrom, leTo });
+	leTo->setPlaceholderText(tr("To"));
+	auto *comboBackend = new QComboBox(this);
+	comboBackend->addItems({ QStringLiteral("ImageMagick"), QStringLiteral("FFmpeg") });
+	if (m_imageMagickVersion.isEmpty()) { disableItem(comboBackend, 0); }
+	if (m_ffmpegVersion.isEmpty()) { disableItem(comboBackend, 1); }
+	m_imageConversion.append({ leFrom, leTo, comboBackend });
 
 	auto *layout = new QHBoxLayout();
 	layout->addWidget(leFrom);
 	layout->addWidget(leTo);
+	layout->addWidget(comboBackend);
 	ui->layoutConversionImageList->addLayout(layout);
 }
 
@@ -1434,17 +1453,17 @@ void OptionsWindow::save()
 		settings->setValue("FFmpegConvertTimeout", qRound(ui->spinConversionFFmpegTimeout->value() * 1000));
 
 		// Image conversion
-		settings->setValue("ImageConversionBackend", ui->comboConversionImageBackend->currentText());
 		settings->setValue("ImageConversionOverwrite", ui->checkConversionImageOverwrite->isChecked());
 		settings->setValue("ImageConversionTimeout", qRound(ui->spinConversionImageTimeout->value() * 1000));
 		settings->beginGroup("ImageConversion");
 		settings->remove("");
 		for (int i = 0, j = 0; i < m_imageConversion.count(); ++i) {
-			const QString &from = m_imageConversion[i].first->text();
-			const QString &to = m_imageConversion[i].second->text();
+			const QString &from = m_imageConversion[i].from->text();
+			const QString &to = m_imageConversion[i].to->text();
 			if (!from.isEmpty() && !to.isEmpty()) {
 				settings->beginGroup(from.toUpper());
 				settings->setValue("to", to.toUpper());
+				settings->setValue("backend", m_imageConversion[i].backend->currentText());
 				settings->endGroup();
 				++j;
 			}

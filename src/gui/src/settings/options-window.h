@@ -1,6 +1,7 @@
 #ifndef OPTIONS_WINDOW_H
 #define OPTIONS_WINDOW_H
 
+#include <QComboBox>
 #include <QDialog>
 #include <QSettings>
 #include <QTreeWidgetItem>
@@ -19,6 +20,14 @@ class QPushButton;
 class QSpinBox;
 class ThemeLoader;
 class TokenSettingsWidget;
+
+
+struct ImageConversionSettings
+{
+	QLineEdit* from;
+	QLineEdit* to;
+	QComboBox* backend;
+};
 
 class OptionsWindow : public QDialog
 {
@@ -143,7 +152,8 @@ class OptionsWindow : public QDialog
 		QList<TokenSettingsWidget*> m_tokenSettings;
 		QList<QPair<QLineEdit*, QLineEdit*>> m_metadataPropsys, m_metadataExiftool;
 		QList<QPair<QCheckBox*, QSpinBox*>> m_buttonSettingPairs;
-		QList<QPair<QLineEdit*, QLineEdit*>> m_imageConversion;
+		QString m_imageMagickVersion, m_ffmpegVersion;
+		QList<ImageConversionSettings> m_imageConversion;
 };
 
 #endif // OPTIONS_WINDOW_H

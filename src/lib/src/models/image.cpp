@@ -850,7 +850,7 @@ QString Image::postSaving(const QString &originalPath, Size size, bool addMd5, b
 	// Image conversion
 	const QString targetImgExt = m_settings->value("Save/ImageConversion/" + ext.toUpper() + "/to").toString().toLower();
 	if (!targetImgExt.isEmpty()) {
-		const QString backend = m_settings->value("Save/ImageConversionBackend", "ImageMagick").toString();
+		const QString backend = m_settings->value("Save/ImageConversion/" + ext.toUpper() + "/backend", m_settings->value("Save/ImageConversionBackend", "ImageMagick")).toString();
 		const bool overwrite = m_settings->value("Save/ImageConversionOverwrite", true).toBool();
 		const int timeout = m_settings->value("Save/ConvertUgoiraTimeout", 30000).toInt();
 		if (backend == QStringLiteral("ImageMagick")) {
