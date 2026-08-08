@@ -18,6 +18,7 @@
 #include "models/site.h"
 #include "models/source.h"
 #include "network/network-reply.h"
+#include "utils/file-utils.h"
 
 
 static void addMd5(Profile *profile, const QString &path)
@@ -202,7 +203,7 @@ void ImageDownloader::loadedSave(Image::LoadTagsResult result)
 		// Use a random temporary file if we need the MD5 or equivalent
 		if (m_filename.needTemporaryFile(m_image->tokens(m_profile))) {
 			const QString tmpDir = !m_path.isEmpty() ? m_path : m_profile->tempPath();
-			m_temporaryPath = tmpDir + QDir::separator() + QUuid::createUuid().toString().mid(1, 36) + ".tmp";
+			m_temporaryPath = tmpDir + "/" + QUuid::createUuid().toString().mid(1, 36) + ".tmp";
 		}
 	}
 
@@ -287,8 +288,7 @@ void ImageDownloader::loadImage(bool rateLimit)
 
 	// Create download root directory
 	const QString rootDir = QFileInfo(m_temporaryPath).path();
-	if (!QDir(rootDir).exists() && !QDir().mkpath(rootDir)) {
-		log(QStringLiteral("Impossible to create the destination folder: %1.").arg(rootDir), Logger::Error);
+	if (!ensureDirectoryExists(rootDir)) {
 		emit saved(m_image, makeResult(m_paths, Image::SaveResult::Error));
 		return;
 	}
@@ -466,8 +466,7 @@ QList<ImageSaveResult> ImageDownloader::afterTemporarySave(Image::SaveResult sav
 		}
 
 		const QString dir = QFileInfo(path).path();
-		if (!QDir(dir).exists() && !QDir().mkpath(dir)) {
-			log(QStringLiteral("Impossible to create the destination folder: %1.").arg(dir), Logger::Error);
+		if (!ensureDirectoryExists(dir)) {
 			result.append({ path, size, Image::SaveResult::Error });
 			continue;
 		}

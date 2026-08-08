@@ -33,6 +33,7 @@
 #include "tags/tag-database.h"
 #include "tags/tag-stylist.h"
 #include "tags/tag-type.h"
+#include "utils/file-utils.h"
 #include "utils/size-utils.h"
 #ifdef WIN_FILE_PROPS
 	#include "windows-file-property.h"
@@ -692,9 +693,7 @@ Image::SaveResult Image::preSave(const QString &path, Size size)
 
 	// Create the destination directory since we're going to put a file there
 	const QString p = QFileInfo(path).path();
-	QDir pathToFile(p), dir;
-	if (!pathToFile.exists() && !dir.mkpath(p)) {
-		log(QStringLiteral("Impossible to create the destination folder: %1.").arg(p), Logger::Error);
+	if (!ensureDirectoryExists(p)) {
 		return SaveResult::Error;
 	}
 

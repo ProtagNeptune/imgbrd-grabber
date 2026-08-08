@@ -143,15 +143,60 @@ TEST_CASE("File utils")
 
 	SECTION("normalizeSavePath")
 	{
-		REQUIRE(normalizeSavePath("C:\\Downloads\\") == QDir::toNativeSeparators("C:/Downloads"));
-		REQUIRE(normalizeSavePath("tests/resources/tmp/#Downloads/") == QDir::toNativeSeparators("tests/resources/tmp/#Downloads"));
-		REQUIRE(normalizeSavePath("tests/resources/tmp/#Downloads//") == QDir::toNativeSeparators("tests/resources/tmp/#Downloads"));
-		REQUIRE(normalizeSavePath("tests/resources/tmp/#Downloads") == QDir::toNativeSeparators("tests/resources/tmp/#Downloads"));
-		REQUIRE(normalizeSavePath("/") == QDir::toNativeSeparators("/"));
-		REQUIRE(normalizeSavePath("//") == QDir::toNativeSeparators("/"));
-		REQUIRE(normalizeSavePath("C:/") == QDir::toNativeSeparators("C:/"));
-		REQUIRE(normalizeSavePath("C:\\") == QDir::toNativeSeparators("C:/"));
-		REQUIRE(normalizeSavePath("C://") == QDir::toNativeSeparators("C:/"));
-		REQUIRE(normalizeSavePath("a:b") == QDir::toNativeSeparators("a:b"));
+		REQUIRE(normalizeSavePath("C:\\Downloads\\") == QString("C:/Downloads"));
+		REQUIRE(normalizeSavePath("tests/resources/tmp/#Downloads/") == QString("tests/resources/tmp/#Downloads"));
+		REQUIRE(normalizeSavePath("tests/resources/tmp/#Downloads//") == QString("tests/resources/tmp/#Downloads"));
+		REQUIRE(normalizeSavePath("tests/resources/tmp/#Downloads") == QString("tests/resources/tmp/#Downloads"));
+		REQUIRE(normalizeSavePath("/") == QString("/"));
+		REQUIRE(normalizeSavePath("//") == QString("/"));
+		REQUIRE(normalizeSavePath("C:/") == QString("C:/"));
+		REQUIRE(normalizeSavePath("C:\\") == QString("C:/"));
+		REQUIRE(normalizeSavePath("C://") == QString("C:/"));
+		REQUIRE(normalizeSavePath("a:b") == QString("a:b"));
+	}
+
+	SECTION("ensureDirectoryExists")
+	{
+		SECTION("Directory already exists")
+		{
+			REQUIRE(ensureDirectoryExists("tests/resources/tmp"));
+		}
+
+		SECTION("Directory can be created")
+		{
+			const QString dir = "tests/resources/tmp/ensure-dir/nested";
+			DirectoryDeleter deleter("tests/resources/tmp/ensure-dir/", false, true);
+
+			REQUIRE(!QDir(dir).exists());
+			REQUIRE(ensureDirectoryExists(dir));
+			REQUIRE(QDir(dir).exists());
+		}
+
+		SECTION("A file blocks the directory creation")
+		{
+			const QString file = "tests/resources/tmp/ensure-file.txt";
+			FileDeleter deleter(file, true);
+			REQUIRE(writeFile(file, "test"));
+
+			REQUIRE(!ensureDirectoryExists(file + "/sub"));
+		}
+	}
+
+	SECTION("diagnoseDirectoryCreationError")
+	{
+		SECTION("A file blocks the directory creation")
+		{
+			const QString file = "tests/resources/tmp/diagnose-file.txt";
+			FileDeleter deleter(file, true);
+			REQUIRE(writeFile(file, "test"));
+
+			const QString reason = diagnoseDirectoryCreationError(file + "/sub");
+			REQUIRE(reason.contains("is a file, not a folder"));
+		}
+
+		SECTION("No reason found for a creatable directory")
+		{
+			REQUIRE(diagnoseDirectoryCreationError("tests/resources/tmp/creatable") == QString());
+		}
 	}
 }

@@ -14,4 +14,7 @@ bool writeFile(const QString &filePath, const QByteArray &data);
 
 QString normalizeSavePath(QString path);
 
+QString diagnoseDirectoryCreationError(const QString &dir);
+bool ensureDirectoryExists(const QString &dir);
+
 #endif // FILE_UTILS_H
