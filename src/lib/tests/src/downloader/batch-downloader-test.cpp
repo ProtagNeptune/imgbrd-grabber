@@ -83,6 +83,16 @@ TEST_CASE("BatchDownloader")
 
 		SECTION("Valid with hash in destination folder")
 		{
+			struct HashDirCleanup
+			{
+				~HashDirCleanup()
+				{
+					QFile("tests/resources/tmp/#Downloads/out.png").remove();
+					QDir("tests/resources/tmp/").rmdir("#Downloads");
+				}
+			};
+			HashDirCleanup cleanup;
+
 			DownloadQueryImage hashQuery(img, site, "out.png", "tests/resources/tmp/#Downloads");
 
 			BatchDownloader downloader(&hashQuery, profile);
@@ -90,9 +100,6 @@ TEST_CASE("BatchDownloader")
 
 			QFile f("tests/resources/tmp/#Downloads/out.png");
 			REQUIRE(f.exists());
-			REQUIRE(f.remove());
-
-			QDir("tests/resources/tmp/").rmdir("#Downloads");
 
 			REQUIRE(downloader.downloadedCount(BatchDownloader::Downloaded) == 1);
 			REQUIRE(downloader.totalCount() == 1);
