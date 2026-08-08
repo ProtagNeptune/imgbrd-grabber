@@ -37,6 +37,7 @@
 #include "models/profile.h"
 #include "monitoring/monitor-manager.h"
 #include "progress-bar-delegate.h"
+#include "utils/file-utils.h"
 
 
 DownloadsTab::DownloadsTab(Profile *profile, DownloadQueue *downloadQueue, MainWindow *parent)
@@ -925,12 +926,7 @@ void DownloadsTab::getAllGetImage(const BatchDownloadImage &download, int siteId
 
 	// Path
 	QString filename = download.query()->filename;
-	QString path = download.query()->path;
-	path.replace("\\", "/");
-	// Keep root paths intact ("/" and "C:/") so trimming does not empty them
-	if (path.endsWith('/') && path != QLatin1String("/") && !(path.length() == 3 && path.at(1) == QLatin1Char(':'))) {
-		path.chop(1);
-	}
+	QString path = normalizeSavePath(download.query()->path);
 	if (siteId >= 0) {
 		m_groupBatchsModel->setStatus(m_groupBatchs[row], 1);
 	}

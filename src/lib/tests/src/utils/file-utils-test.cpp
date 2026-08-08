@@ -140,4 +140,14 @@ TEST_CASE("File utils")
 		REQUIRE(writeFile(file, "test"));
 		REQUIRE(QFile::exists(file));
 	}
+
+	SECTION("normalizeSavePath")
+	{
+		REQUIRE(normalizeSavePath("C:\\Downloads\\") == "C:/Downloads");
+		REQUIRE(normalizeSavePath("tests/resources/tmp/#Downloads/") == "tests/resources/tmp/#Downloads");
+		REQUIRE(normalizeSavePath("tests/resources/tmp/#Downloads") == "tests/resources/tmp/#Downloads");
+		REQUIRE(normalizeSavePath("/") == "/");
+		REQUIRE(normalizeSavePath("C:/") == "C:/");
+		REQUIRE(normalizeSavePath("C:\\") == "C:/");
+	}
 }

@@ -125,3 +125,15 @@ bool writeFile(const QString &filePath, const QByteArray &data)
 
 	return true;
 }
+
+QString normalizeSavePath(QString path)
+{
+	path.replace('\\', '/');
+
+	// Keep root paths intact ("/" and "C:/") so trimming does not empty them
+	if (path.endsWith('/') && path != QLatin1String("/") && !(path.length() == 3 && path.at(1) == QLatin1Char(':'))) {
+		path.chop(1);
+	}
+
+	return path;
+}
