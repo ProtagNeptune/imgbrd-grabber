@@ -130,11 +130,14 @@ QString normalizeSavePath(QString path)
 {
 	path.replace('\\', '/');
 
-	// Keep root paths intact ("/" and "C:/") so trimming does not empty them
-	const bool isWindowsDriveRoot = path.length() == 3
-		&& path.at(1) == QLatin1Char(':')
-		&& path.at(2) == QLatin1Char('/');
-	if (path.endsWith('/') && path != QLatin1String("/") && !isWindowsDriveRoot) {
+	// Strip trailing slashes while keeping root paths intact ("/" and "C:/")
+	while (path.endsWith('/')) {
+		const bool isWindowsDriveRoot = path.length() == 3
+			&& path.at(1) == QLatin1Char(':')
+			&& path.at(2) == QLatin1Char('/');
+		if (path == QLatin1String("/") || isWindowsDriveRoot) {
+			break;
+		}
 		path.chop(1);
 	}
 
