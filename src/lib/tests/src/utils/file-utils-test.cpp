@@ -192,6 +192,7 @@ TEST_CASE("File utils")
 
 			const QString reason = diagnoseDirectoryCreationError(file + "/sub");
 			REQUIRE(reason.contains("is a file, not a folder"));
+			REQUIRE(reason.contains(file));
 		}
 
 		SECTION("No reason found for a creatable directory")

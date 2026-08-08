@@ -182,7 +182,7 @@ QString diagnoseDirectoryCreationError(const QString &dir)
 	// Check for folder names that are not valid on Windows
 	#ifdef Q_OS_WIN
 		static const QStringList reserved { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
-		static const QRegularExpression forbiddenChars(QStringLiteral("[<>:\"|?*]"));
+		static const QRegularExpression forbiddenChars(QStringLiteral("[<>:\"|?*\\\\]"));
 		for (const QString &part : missing) {
 			if (part.endsWith('.') || part != part.trimmed() || part.contains(forbiddenChars) || reserved.contains(part.section('.', 0, 0), Qt::CaseInsensitive)) {
 				return QStringLiteral("`%1` is not a valid folder name on Windows").arg(part);
@@ -195,6 +195,11 @@ QString diagnoseDirectoryCreationError(const QString &dir)
 
 bool ensureDirectoryExists(const QString &dir)
 {
+	if (dir.isEmpty()) {
+		log(QStringLiteral("Impossible to create the destination folder: empty path."), Logger::Error);
+		return false;
+	}
+
 	if (QDir(dir).exists() || QDir().mkpath(dir)) {
 		return true;
 	}
