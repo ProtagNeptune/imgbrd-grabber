@@ -184,7 +184,10 @@ void BatchDownloader::loadImage(const QSharedPointer<Image> &img)
 
 	// Path
 	QString filename = m_query->filename;
-	QString path = m_query->path;
+	QString path = m_query->path.replace("\\", "/");
+	if (path.endsWith('/')) {
+		path.chop(1);
+	}
 	auto *group = dynamic_cast<DownloadQueryGroup*>(m_query);
 
 	// Start loading and saving image

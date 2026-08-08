@@ -80,6 +80,23 @@ TEST_CASE("BatchDownloader")
 			REQUIRE(downloader.downloadedCount(BatchDownloader::NotFound) == 1);
 			REQUIRE(downloader.totalCount() == 1);
 		}
+
+		SECTION("Valid with hash in destination folder")
+		{
+			DownloadQueryImage hashQuery(img, site, "out.png", "tests/resources/tmp/#Downloads");
+
+			BatchDownloader downloader(&hashQuery, profile);
+			waitForFinished(&downloader);
+
+			QFile f("tests/resources/tmp/#Downloads/out.png");
+			REQUIRE(f.exists());
+			REQUIRE(f.remove());
+
+			QDir("tests/resources/tmp/").rmdir("#Downloads");
+
+			REQUIRE(downloader.downloadedCount(BatchDownloader::Downloaded) == 1);
+			REQUIRE(downloader.totalCount() == 1);
+		}
 	}
 
 	SECTION("Group download")

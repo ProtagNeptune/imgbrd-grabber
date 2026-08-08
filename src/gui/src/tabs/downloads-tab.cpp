@@ -925,7 +925,10 @@ void DownloadsTab::getAllGetImage(const BatchDownloadImage &download, int siteId
 
 	// Path
 	QString filename = download.query()->filename;
-	QString path = download.query()->path;
+	QString path = download.query()->path.replace("\\", "/");
+	if (path.endsWith('/')) {
+		path.chop(1);
+	}
 	if (siteId >= 0) {
 		m_groupBatchsModel->setStatus(m_groupBatchs[row], 1);
 	}
