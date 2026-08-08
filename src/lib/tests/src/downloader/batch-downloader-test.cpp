@@ -90,6 +90,7 @@ TEST_CASE("BatchDownloader")
 					QFile("tests/resources/tmp/#Downloads/out.png").remove();
 					QDir("tests/resources/tmp/").rmdir("#Downloads");
 					REQUIRE(!QFile::exists("tests/resources/tmp/#Downloads/out.png"));
+					REQUIRE(!QDir("tests/resources/tmp/#Downloads").exists());
 				}
 				~HashDirCleanup()
 				{
