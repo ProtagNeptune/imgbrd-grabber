@@ -10,6 +10,7 @@
 #include "models/profile.h"
 #include "models/site.h"
 #include "models/source.h"
+#include "raii-helpers.h"
 #include "tags/tag.h"
 #include "catch.h"
 #include "source-helpers.h"
@@ -226,6 +227,19 @@ TEST_CASE("Image")
 			REQUIRE(res == Image::SaveResult::Saved);
 			REQUIRE(file.exists());
 			file.remove();
+		}
+
+		SECTION("Forward separators in parent path")
+		{
+			const QString dir = "tests/resources/tmp/#Downloads";
+			const QString savePath = dir + "/724/7331.jpg";
+			DirectoryDeleter cleanup(dir, false, true);
+
+			img->setSavePath("tests/resources/image_1x1.png");
+			Image::SaveResult res = img->preSave(savePath, Image::Size::Full);
+
+			REQUIRE(res == Image::SaveResult::Saved);
+			REQUIRE(QFile::exists(savePath));
 		}
 
 		#ifdef Q_OS_WIN

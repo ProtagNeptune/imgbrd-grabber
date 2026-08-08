@@ -2,6 +2,7 @@
 #include <QDir>
 #include <QEventLoop>
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QNetworkRequest>
@@ -690,7 +691,7 @@ Image::SaveResult Image::preSave(const QString &path, Size size)
 	}
 
 	// Create the destination directory since we're going to put a file there
-	const QString p = path.section(QDir::separator(), 0, -2);
+	const QString p = QFileInfo(path).path();
 	QDir pathToFile(p), dir;
 	if (!pathToFile.exists() && !dir.mkpath(p)) {
 		log(QStringLiteral("Impossible to create the destination folder: %1.").arg(p), Logger::Error);
