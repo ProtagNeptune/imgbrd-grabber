@@ -85,19 +85,16 @@ TEST_CASE("BatchDownloader")
 		{
 			struct HashDirCleanup
 			{
-				HashDirCleanup()
-				{
-					QFile("tests/resources/tmp/#Downloads/out.png").remove();
-					QDir("tests/resources/tmp/").rmdir("#Downloads");
-					REQUIRE(!QFile::exists("tests/resources/tmp/#Downloads/out.png"));
-					REQUIRE(!QDir("tests/resources/tmp/#Downloads").exists());
-				}
 				~HashDirCleanup()
 				{
 					QFile("tests/resources/tmp/#Downloads/out.png").remove();
 					QDir("tests/resources/tmp/").rmdir("#Downloads");
 				}
 			};
+			QFile("tests/resources/tmp/#Downloads/out.png").remove();
+			QDir("tests/resources/tmp/").rmdir("#Downloads");
+			REQUIRE(!QFile::exists("tests/resources/tmp/#Downloads/out.png"));
+			REQUIRE(!QDir("tests/resources/tmp/#Downloads").exists());
 			HashDirCleanup cleanup;
 
 			DownloadQueryImage hashQuery(img, site, "out.png", "tests/resources/tmp/#Downloads");
