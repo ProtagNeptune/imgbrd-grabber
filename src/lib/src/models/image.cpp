@@ -690,6 +690,11 @@ Image::SaveResult Image::preSave(const QString &path, Size size)
 		}
 	}
 
+	// Reject empty destination paths before attempting directory creation or save
+	if (path.isEmpty()) {
+		return SaveResult::Error;
+	}
+
 	// Create the destination directory since we're going to put a file there
 	const QString p = path.section(QDir::separator(), 0, -2);
 	if (!p.isEmpty() && !ensureDirectoryExists(p)) {
