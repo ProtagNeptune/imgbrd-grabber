@@ -127,24 +127,6 @@ bool writeFile(const QString &filePath, const QByteArray &data)
 	return true;
 }
 
-QString normalizeSavePath(QString path)
-{
-	path.replace('\\', '/');
-
-	// Strip trailing slashes while keeping root paths intact ("/" and "C:/")
-	while (path.endsWith('/')) {
-		const bool isWindowsDriveRoot = path.length() == 3
-			&& path.at(1) == QLatin1Char(':')
-			&& path.at(2) == QLatin1Char('/');
-		if (path == QLatin1String("/") || isWindowsDriveRoot) {
-			break;
-		}
-		path.chop(1);
-	}
-
-	return path;
-}
-
 QString diagnoseDirectoryCreationError(const QString &dir)
 {
 	const QString cleaned = QDir::cleanPath(dir);

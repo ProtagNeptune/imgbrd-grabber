@@ -37,7 +37,6 @@
 #include "models/profile.h"
 #include "monitoring/monitor-manager.h"
 #include "progress-bar-delegate.h"
-#include "utils/file-utils.h"
 
 
 DownloadsTab::DownloadsTab(Profile *profile, DownloadQueue *downloadQueue, MainWindow *parent)
@@ -926,7 +925,7 @@ void DownloadsTab::getAllGetImage(const BatchDownloadImage &download, int siteId
 
 	// Path
 	QString filename = download.query()->filename;
-	QString path = normalizeSavePath(download.query()->path);
+	QString path = download.query()->path;
 	if (siteId >= 0) {
 		m_groupBatchsModel->setStatus(m_groupBatchs[row], 1);
 	}

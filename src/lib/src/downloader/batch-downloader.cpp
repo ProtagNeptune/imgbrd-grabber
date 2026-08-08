@@ -9,7 +9,6 @@
 #include "loader/pack-loader.h"
 #include "models/profile.h"
 #include "models/site.h"
-#include "utils/file-utils.h"
 
 
 BatchDownloader::BatchDownloader(DownloadQuery *query, Profile *profile, QObject *parent)
@@ -185,7 +184,7 @@ void BatchDownloader::loadImage(const QSharedPointer<Image> &img)
 
 	// Path
 	QString filename = m_query->filename;
-	QString path = normalizeSavePath(m_query->path);
+	QString path = m_query->path;
 	auto *group = dynamic_cast<DownloadQueryGroup*>(m_query);
 
 	// Start loading and saving image

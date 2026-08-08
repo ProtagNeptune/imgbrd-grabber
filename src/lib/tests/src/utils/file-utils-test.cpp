@@ -141,20 +141,6 @@ TEST_CASE("File utils")
 		REQUIRE(QFile::exists(file));
 	}
 
-	SECTION("normalizeSavePath")
-	{
-		REQUIRE(normalizeSavePath("C:\\Downloads\\") == QString("C:/Downloads"));
-		REQUIRE(normalizeSavePath("tests/resources/tmp/#Downloads/") == QString("tests/resources/tmp/#Downloads"));
-		REQUIRE(normalizeSavePath("tests/resources/tmp/#Downloads//") == QString("tests/resources/tmp/#Downloads"));
-		REQUIRE(normalizeSavePath("tests/resources/tmp/#Downloads") == QString("tests/resources/tmp/#Downloads"));
-		REQUIRE(normalizeSavePath("/") == QString("/"));
-		REQUIRE(normalizeSavePath("//") == QString("/"));
-		REQUIRE(normalizeSavePath("C:/") == QString("C:/"));
-		REQUIRE(normalizeSavePath("C:\\") == QString("C:/"));
-		REQUIRE(normalizeSavePath("C://") == QString("C:/"));
-		REQUIRE(normalizeSavePath("a:b") == QString("a:b"));
-	}
-
 	SECTION("ensureDirectoryExists")
 	{
 		SECTION("Directory already exists")

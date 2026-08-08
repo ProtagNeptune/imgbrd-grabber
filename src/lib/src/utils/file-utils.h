@@ -12,8 +12,6 @@ bool safeWriteFile(const QString &filePath, const QByteArray &data, bool backup 
 bool ensureFileParent(const QString &filePath);
 bool writeFile(const QString &filePath, const QByteArray &data);
 
-QString normalizeSavePath(QString path);
-
 QString diagnoseDirectoryCreationError(const QString &dir);
 bool ensureDirectoryExists(const QString &dir);
 

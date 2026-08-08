@@ -9,7 +9,6 @@
 #include "downloader/download-query-group.h"
 #include "downloader/download-query-image.h"
 #include "models/profile.h"
-#include "raii-helpers.h"
 #include "source-helpers.h"
 
 
@@ -79,24 +78,6 @@ TEST_CASE("BatchDownloader")
 			REQUIRE(!f.exists());
 
 			REQUIRE(downloader.downloadedCount(BatchDownloader::NotFound) == 1);
-			REQUIRE(downloader.totalCount() == 1);
-		}
-
-		SECTION("Valid with hash in destination folder")
-		{
-			// removeRecursively in ctor/dtor so leftovers from aborted runs cannot flake the test
-			DirectoryDeleter cleanup("tests/resources/tmp/#Downloads", false, true);
-			REQUIRE(!QDir("tests/resources/tmp/#Downloads").exists());
-
-			DownloadQueryImage hashQuery(img, site, "out.png", "tests/resources/tmp/#Downloads");
-
-			BatchDownloader downloader(&hashQuery, profile);
-			waitForFinished(&downloader);
-
-			QFile f("tests/resources/tmp/#Downloads/out.png");
-			REQUIRE(f.exists());
-
-			REQUIRE(downloader.downloadedCount(BatchDownloader::Downloaded) == 1);
 			REQUIRE(downloader.totalCount() == 1);
 		}
 	}

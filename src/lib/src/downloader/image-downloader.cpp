@@ -1,7 +1,6 @@
 #include "downloader/image-downloader.h"
 #include <QDir>
 #include <QFile>
-#include <QFileInfo>
 #include <QImageReader>
 #include <QSettings>
 #include <QSize>
@@ -203,7 +202,7 @@ void ImageDownloader::loadedSave(Image::LoadTagsResult result)
 		// Use a random temporary file if we need the MD5 or equivalent
 		if (m_filename.needTemporaryFile(m_image->tokens(m_profile))) {
 			const QString tmpDir = !m_path.isEmpty() ? m_path : m_profile->tempPath();
-			m_temporaryPath = tmpDir + "/" + QUuid::createUuid().toString().mid(1, 36) + ".tmp";
+			m_temporaryPath = tmpDir + QDir::separator() + QUuid::createUuid().toString().mid(1, 36) + ".tmp";
 		}
 	}
 
@@ -287,7 +286,7 @@ void ImageDownloader::loadImage(bool rateLimit)
 	connect(m_reply, &NetworkReply::downloadProgress, this, &ImageDownloader::downloadProgressImage);
 
 	// Create download root directory
-	const QString rootDir = QFileInfo(m_temporaryPath).path();
+	const QString rootDir = m_temporaryPath.section(QDir::separator(), 0, -2);
 	if (!ensureDirectoryExists(rootDir)) {
 		emit saved(m_image, makeResult(m_paths, Image::SaveResult::Error));
 		return;
@@ -465,7 +464,7 @@ QList<ImageSaveResult> ImageDownloader::afterTemporarySave(Image::SaveResult sav
 			continue;
 		}
 
-		const QString dir = QFileInfo(path).path();
+		const QString dir = path.section(QDir::separator(), 0, -2);
 		if (!ensureDirectoryExists(dir)) {
 			result.append({ path, size, Image::SaveResult::Error });
 			continue;
