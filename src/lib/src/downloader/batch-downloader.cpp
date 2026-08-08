@@ -184,8 +184,10 @@ void BatchDownloader::loadImage(const QSharedPointer<Image> &img)
 
 	// Path
 	QString filename = m_query->filename;
-	QString path = m_query->path.replace("\\", "/");
-	if (path.endsWith('/')) {
+	QString path = m_query->path;
+	path.replace("\\", "/");
+	// Keep root paths intact ("/" and "C:/") so trimming does not empty them
+	if (path.endsWith('/') && path != QLatin1String("/") && !(path.length() == 3 && path.at(1) == QLatin1Char(':'))) {
 		path.chop(1);
 	}
 	auto *group = dynamic_cast<DownloadQueryGroup*>(m_query);

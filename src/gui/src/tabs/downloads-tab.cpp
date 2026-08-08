@@ -925,8 +925,10 @@ void DownloadsTab::getAllGetImage(const BatchDownloadImage &download, int siteId
 
 	// Path
 	QString filename = download.query()->filename;
-	QString path = download.query()->path.replace("\\", "/");
-	if (path.endsWith('/')) {
+	QString path = download.query()->path;
+	path.replace("\\", "/");
+	// Keep root paths intact ("/" and "C:/") so trimming does not empty them
+	if (path.endsWith('/') && path != QLatin1String("/") && !(path.length() == 3 && path.at(1) == QLatin1Char(':'))) {
 		path.chop(1);
 	}
 	if (siteId >= 0) {
