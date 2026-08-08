@@ -141,5 +141,5 @@ QString normalizeSavePath(QString path)
 		path.chop(1);
 	}
 
-	return path;
+	return QDir::toNativeSeparators(path);
 }
