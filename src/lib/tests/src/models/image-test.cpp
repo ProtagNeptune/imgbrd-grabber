@@ -210,6 +210,22 @@ TEST_CASE("Image")
 
 	SECTION("preSave")
 	{
+		SECTION("File saved in current directory")
+		{
+			const QString savePath = "7331-cwd.jpg";
+			QFile file(savePath);
+			if (file.exists()) {
+				file.remove();
+			}
+
+			img->setSavePath("tests/resources/image_1x1.png");
+			Image::SaveResult res = img->preSave(savePath, Image::Size::Full);
+
+			REQUIRE(res == Image::SaveResult::Saved);
+			REQUIRE(file.exists());
+			file.remove();
+		}
+
 		SECTION("File already saved somewhere else")
 		{
 			const QString savePath = QDir::toNativeSeparators("tests/resources/tmp/7331.jpg");

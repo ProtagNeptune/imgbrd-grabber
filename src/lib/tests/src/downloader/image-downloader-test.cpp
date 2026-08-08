@@ -98,6 +98,28 @@ TEST_CASE("ImageDownloader")
 		assertDownload(profile, img, &downloader, expected, true);
 	}
 
+	SECTION("SuccessBasicCurrentDirectoryPath")
+	{
+		auto img = createImage(profile, site);
+		ImageDownloader downloader(profile, img, "out-cwd.jpg", "", 1, false, false, nullptr, false, false);
+
+		QList<ImageSaveResult> expected;
+		expected.append({ "out-cwd.jpg", Image::Size::Full, Image::SaveResult::Saved });
+
+		assertDownload(profile, img, &downloader, expected, true);
+	}
+
+	SECTION("SuccessMd5CurrentDirectoryPath")
+	{
+		auto img = createImage(profile, site);
+		ImageDownloader downloader(profile, img, "%md5%.%ext%", "", 1, false, false, nullptr, false, false);
+
+		QList<ImageSaveResult> expected;
+		expected.append({ "1bc29b36f623ba82aaf6724fd3b16718.jpg", Image::Size::Full, Image::SaveResult::Saved });
+
+		assertDownload(profile, img, &downloader, expected, true);
+	}
+
 	SECTION("SuccessLoadTags")
 	{
 		auto img = createImage(profile, site);

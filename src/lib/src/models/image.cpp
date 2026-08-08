@@ -692,7 +692,7 @@ Image::SaveResult Image::preSave(const QString &path, Size size)
 
 	// Create the destination directory since we're going to put a file there
 	const QString p = path.section(QDir::separator(), 0, -2);
-	if (!ensureDirectoryExists(p)) {
+	if (!p.isEmpty() && !ensureDirectoryExists(p)) {
 		return SaveResult::Error;
 	}
 
